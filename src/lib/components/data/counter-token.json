@@ -1,0 +1,18 @@
+{
+  "storage": {
+    "totalLabel": "500 GB",
+    "usedLabel": "125 GB",
+    "percent": 25
+  },
+  "tokens": {
+    "label": "Tokens",
+    "valueLabel": "500000",
+    "usedLabel": "250000",
+    "percent": 50
+  },
+  "users": {
+    "label": "Users",
+    "valueLabel": "1"
+  },
+  "cta": "Upgrade plan"
+}

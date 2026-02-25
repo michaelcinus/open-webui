@@ -66,6 +66,7 @@
 	import Note from '../icons/Note.svelte';
 	import { slide } from 'svelte/transition';
 	import HotkeyHint from '../common/HotkeyHint.svelte';
+	import CounterToken from './Sidebar/CounterToken.svelte';
 
 	const BREAKPOINT = 768;
 
@@ -380,8 +381,8 @@
 		selectedChatId = null;
 	};
 
-	const MIN_WIDTH = 220;
-	const MAX_WIDTH = 480;
+		const MIN_WIDTH = 220;
+		const MAX_WIDTH = 254;
 
 	let isResizing = false;
 
@@ -393,7 +394,7 @@
 		isResizing = true;
 
 		startClientX = e.clientX;
-		startWidth = $sidebarWidth ?? 260;
+		startWidth = $sidebarWidth ?? 254;
 
 		document.body.style.userSelect = 'none';
 	};
@@ -658,6 +659,8 @@
 		}}
 	/>
 {/if}
+
+<CounterToken />
 
 <SearchModal
 	bind:show={$showSearch}
