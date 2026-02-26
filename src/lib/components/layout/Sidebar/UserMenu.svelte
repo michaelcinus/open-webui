@@ -85,6 +85,7 @@
 
 	<slot name="content">
 		<DropdownMenu.Content
+			id="xference-user-menu"
 			class="w-full {className}  rounded-2xl px-1 py-1  border border-gray-100  dark:border-gray-800 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg text-sm"
 			sideOffset={4}
 			side="top"
@@ -201,6 +202,7 @@
 			{/if}
 
 			<DropdownMenu.Item
+				id="xference-user-menu-item-settings"
 				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer select-none"
 				on:click={async () => {
 					show = false;
@@ -220,6 +222,7 @@
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
+				id="xference-user-menu-item-archived-chats"
 				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer select-none"
 				on:click={async () => {
 					show = false;
@@ -241,6 +244,7 @@
 
 			{#if role === 'admin'}
 				<DropdownMenu.Item
+					id="xference-user-menu-item-playground"
 					as="a"
 					href="/playground"
 					draggable="false"
@@ -259,6 +263,7 @@
 					<div class=" self-center truncate">{$i18n.t('Playground')}</div>
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
+					id="xference-user-menu-item-admin-panel"
 					as="a"
 					href="/admin"
 					draggable="false"
@@ -321,8 +326,8 @@
 				{/if}
 
 				<DropdownMenu.Item
+					id="xference-user-menu-item-keyboard-shortcuts"
 					class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer select-none"
-					id="chat-share-button"
 					on:click={async () => {
 						show = false;
 						showShortcuts.set(!$showShortcuts);
@@ -343,6 +348,7 @@
 			<hr class=" border-gray-50/30 dark:border-gray-800/30 my-1 p-0" />
 
 			<DropdownMenu.Item
+				id="xference-user-menu-item-sign-out"
 				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer select-none"
 				on:click={async () => {
 					const res = await userSignOut();
@@ -369,6 +375,7 @@
 							: ''}
 					>
 						<div
+							id="xference-user-menu-active-users"
 							class="flex rounded-xl py-1 px-3 text-xs gap-2.5 items-center"
 							on:mouseenter={() => {
 								if ($config?.features?.enable_public_active_users_count || role === 'admin') {

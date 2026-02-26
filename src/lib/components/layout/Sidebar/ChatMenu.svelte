@@ -294,6 +294,7 @@
 
 	<div slot="content">
 		<DropdownMenu.Content
+			id="xference-chat-menu"
 			class="select-none w-full max-w-[200px] rounded-2xl px-1 py-1  border border-gray-100  dark:border-gray-800 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg transition"
 			sideOffset={-2}
 			side="bottom"
@@ -302,6 +303,7 @@
 		>
 			{#if $user?.role === 'admin' || ($user.permissions?.chat?.share ?? true)}
 				<DropdownMenu.Item
+					id="xference-chat-menu-item-share"
 					draggable="false"
 					class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800  rounded-xl"
 					on:click={() => {
@@ -315,6 +317,7 @@
 
 			<DropdownMenu.Sub>
 				<DropdownMenu.SubTrigger
+					id="xference-chat-menu-item-download"
 					draggable="false"
 					class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
 				>
@@ -329,6 +332,7 @@
 				>
 					{#if $user?.role === 'admin' || ($user.permissions?.chat?.export ?? true)}
 						<DropdownMenu.Item
+							id="xference-chat-menu-item-export-json"
 							draggable="false"
 							class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
 							on:click={() => {
@@ -340,6 +344,7 @@
 					{/if}
 
 					<DropdownMenu.Item
+						id="xference-chat-menu-item-export-txt"
 						draggable="false"
 						class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
 						on:click={() => {
@@ -350,6 +355,7 @@
 					</DropdownMenu.Item>
 
 					<DropdownMenu.Item
+						id="xference-chat-menu-item-export-pdf"
 						draggable="false"
 						class="flex gap-2 items-center px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl select-none w-full"
 						on:click={() => {
@@ -362,6 +368,7 @@
 			</DropdownMenu.Sub>
 
 			<DropdownMenu.Item
+				id="xference-chat-menu-item-rename"
 				draggable="false"
 				class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
 				on:click={() => {
@@ -375,6 +382,7 @@
 			<hr class="border-gray-50/30 dark:border-gray-800/30 my-1" />
 
 			<DropdownMenu.Item
+				id="xference-chat-menu-item-pin"
 				draggable="false"
 				class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
 				on:click={() => {
@@ -391,6 +399,7 @@
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
+				id="xference-chat-menu-item-clone"
 				draggable="false"
 				class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
 				on:click={() => {
@@ -404,6 +413,7 @@
 			{#if chatId && $folders.length > 0}
 				<DropdownMenu.Sub>
 					<DropdownMenu.SubTrigger
+						id="xference-chat-menu-item-move"
 						draggable="false"
 						class="flex gap-2 items-center px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl select-none w-full"
 					>
@@ -434,6 +444,7 @@
 			{/if}
 
 			<DropdownMenu.Item
+				id="xference-chat-menu-item-archive"
 				draggable="false"
 				class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
 				on:click={() => {
@@ -445,6 +456,7 @@
 			</DropdownMenu.Item>
 
 			<DropdownMenu.Item
+				id="xference-chat-menu-item-delete"
 				draggable="false"
 				class="flex  gap-2  items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
 				on:click={() => {

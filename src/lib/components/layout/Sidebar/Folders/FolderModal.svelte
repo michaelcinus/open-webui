@@ -106,10 +106,10 @@
 	}
 </script>
 
-<Modal size="md" bind:show>
+<Modal size="md" bind:show modalId="xference-folder-modal" contentId="xference-folder-modal-content">
 	<div>
-		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
-			<div class=" text-lg font-medium self-center">
+		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1" id="xference-folder-modal-header">
+			<div class=" text-lg font-medium self-center" id="xference-folder-modal-title">
 				{#if edit}
 					{$i18n.t('Edit Folder')}
 				{:else}
@@ -117,6 +117,7 @@
 				{/if}
 			</div>
 			<button
+				id="xference-folder-modal-close"
 				class="self-center"
 				on:click={() => {
 					show = false;
@@ -126,9 +127,13 @@
 			</button>
 		</div>
 
-		<div class="flex flex-col md:flex-row w-full px-5 pb-4 md:space-x-4 dark:text-gray-200">
+		<div
+			class="flex flex-col md:flex-row w-full px-5 pb-4 md:space-x-4 dark:text-gray-200"
+			id="xference-folder-modal-body"
+		>
 			<div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
 				<form
+					id="xference-folder-modal-form"
 					class="flex flex-col w-full"
 					on:submit|preventDefault={() => {
 						submitHandler();
@@ -185,6 +190,7 @@
 
 						<div class="">
 							<button
+								id="xference-folder-modal-background-image-button"
 								aria-labelledby="chat-background-label background-image-url-state"
 								class="p-1 px-3 text-xs flex rounded-sm transition"
 								on:click={() => {
@@ -215,6 +221,7 @@
 							<div class="mb-2 text-xs text-gray-500">{$i18n.t('System Prompt')}</div>
 							<div>
 								<Textarea
+									id="xference-folder-modal-system-prompt"
 									className=" text-sm w-full bg-transparent outline-hidden "
 									placeholder={$i18n.t(
 										'Write your model system prompt content here\ne.g.) You are Mario from Super Mario Bros, acting as an assistant.'
@@ -226,7 +233,7 @@
 						</div>
 					{/if}
 
-					<div class="my-2">
+					<div class="my-2" id="xference-folder-modal-knowledge">
 						<Knowledge bind:selectedItems={data.files}>
 							<div slot="label">
 								<div class="flex w-full justify-between">
@@ -240,6 +247,7 @@
 
 					<div class="flex justify-end pt-3 text-sm font-medium gap-1.5">
 						<button
+							id="xference-folder-modal-save"
 							class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-950 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full flex flex-row space-x-1 items-center {loading
 								? ' cursor-not-allowed'
 								: ''}"

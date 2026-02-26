@@ -123,6 +123,7 @@
 
 	<div slot="content">
 		<DropdownMenu.Content
+			id="xference-input-menu"
 			class="w-full max-w-70 rounded-2xl px-1 py-1  border border-gray-100  dark:border-gray-800 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg max-h-72 overflow-y-auto overflow-x-hidden scrollbar-thin transition"
 			sideOffset={4}
 			alignOffset={-6}
@@ -141,6 +142,7 @@
 						className="w-full"
 					>
 						<DropdownMenu.Item
+							id="xference-input-menu-upload-files"
 							class="flex gap-2 items-center px-3 py-1.5 text-sm select-none cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl {!fileUploadEnabled
 								? 'opacity-50'
 								: ''}"
@@ -165,6 +167,7 @@
 						className="w-full"
 					>
 						<DropdownMenu.Item
+							id="xference-input-menu-capture"
 							class="flex gap-2 items-center px-3 py-1.5 text-sm select-none cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50  rounded-xl {!fileUploadEnabled
 								? 'opacity-50'
 								: ''}"
@@ -194,6 +197,7 @@
 						className="w-full"
 					>
 						<DropdownMenu.Item
+							id="xference-input-menu-attach-webpage"
 							class="flex gap-2 items-center px-3 py-1.5 text-sm select-none cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl {!webUploadEnabled
 								? 'opacity-50'
 								: ''}"
@@ -218,6 +222,7 @@
 							className="w-full"
 						>
 							<button
+								id="xference-input-menu-attach-notes"
 								class="flex gap-2 w-full items-center px-3 py-1.5 text-sm select-none cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl {!fileUploadEnabled
 									? 'opacity-50'
 									: ''}"
@@ -249,6 +254,7 @@
 						className="w-full"
 					>
 						<button
+							id="xference-input-menu-attach-knowledge"
 							class="flex gap-2 w-full items-center px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl {!fileUploadEnabled
 								? 'opacity-50'
 								: ''}"
@@ -279,6 +285,7 @@
 						className="w-full"
 					>
 						<button
+							id="xference-input-menu-reference-chats"
 							class="flex gap-2 w-full items-center px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-xl {!fileUploadEnabled
 								? 'opacity-50'
 								: ''}"
