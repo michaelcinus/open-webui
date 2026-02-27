@@ -139,13 +139,13 @@
       <div class="label" aria-hidden="true">
         <div class="mini-card-header">
           <svg width="35" height="19" viewBox="0 0 35 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0.5" y="0.5" width="34" height="9" stroke="black" />
-            <rect x="0.5" y="9.5" width="34" height="9" stroke="black" />
+            <rect x="0.5" y="0.5" width="34" height="9" stroke="currentColor" />
+            <rect x="0.5" y="9.5" width="34" height="9" stroke="currentColor" />
             <rect x="4" y="4" width="2" height="2" fill="#414142" />
             <rect x="4" y="13" width="2" height="2" fill="#BABDBE" />
-            <rect x="4" y="13" width="2" height="2" fill="black" fill-opacity="0.2" />
-            <rect x="12" y="4" width="19" height="2" fill="black" />
-            <rect x="12" y="13" width="19" height="2" fill="black" />
+            <rect x="4" y="13" width="2" height="2" fill="currentColor" fill-opacity="0.2" />
+            <rect x="12" y="4" width="19" height="2" fill="currentColor" />
+            <rect x="12" y="13" width="19" height="2" fill="currentColor" />
             <rect x="8" y="4" width="2" height="2" fill="#F25C05" />
             <rect x="8" y="13" width="2" height="2" fill="#BABDBE" />
           </svg>
