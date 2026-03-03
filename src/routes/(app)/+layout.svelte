@@ -232,10 +232,6 @@
 					event.preventDefault();
 					showSettings.set(false);
 					showShortcuts.set(false);
-				} else if (isShortcutMatch(event, shortcuts[Shortcut.OPEN_MODEL_SELECTOR])) {
-					console.log('Shortcut triggered: OPEN_MODEL_SELECTOR');
-					event.preventDefault();
-					document.getElementById('model-selector-0-button')?.click();
 				} else if (isShortcutMatch(event, shortcuts[Shortcut.NEW_TEMPORARY_CHAT])) {
 					console.log('Shortcut triggered: NEW_TEMPORARY_CHAT');
 					event.preventDefault();
@@ -248,10 +244,6 @@
 					setTimeout(() => {
 						document.getElementById('new-chat-button')?.click();
 					}, 0);
-				} else if (isShortcutMatch(event, shortcuts[Shortcut.GENERATE_MESSAGE_PAIR])) {
-					console.log('Shortcut triggered: GENERATE_MESSAGE_PAIR');
-					event.preventDefault();
-					document.getElementById('generate-message-pair-button')?.click();
 				} else if (
 					isShortcutMatch(event, shortcuts[Shortcut.REGENERATE_RESPONSE]) &&
 					document.activeElement?.id === 'chat-input'

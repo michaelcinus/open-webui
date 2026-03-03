@@ -78,25 +78,18 @@
 						<!-- {$i18n.t('Message')} -->
 
 						<!-- {$i18n.t('New Chat')} -->
-						<!-- {$i18n.t('New Temporary Chat')} -->
 						<!-- {$i18n.t('Delete Chat')} -->
-						<!-- {$i18n.t('Open Model Selector')} -->
+						<!-- {$i18n.t('New Temporary Chat')} -->
 						<!-- {$i18n.t('Search')} -->
-						<!-- {$i18n.t('Open Settings')} -->
 						<!-- {$i18n.t('Show Shortcuts')} -->
-						<!-- {$i18n.t('Toggle Sidebar')} -->
 						<!-- {$i18n.t('Close Modal')} -->
+						<!-- {$i18n.t('Open Settings')} -->
+						<!-- {$i18n.t('Toggle Sidebar')} -->
 						<!-- {$i18n.t('Focus Chat Input')} -->
-						<!-- {$i18n.t('Accept Autocomplete Generation\nJump to Prompt Variable')} -->
-						<!-- {$i18n.t('Prevent File Creation')} -->
-						<!-- {$i18n.t('Attach File From Knowledge')} -->
 						<!-- {$i18n.t('Add Custom Prompt')} -->
-						<!-- {$i18n.t('Talk to Model')} -->
-						<!-- {$i18n.t('Generate Message Pair')} -->
-						<!-- {$i18n.t('Regenerate Response')} -->
-						<!-- {$i18n.t('Stop Generating')} -->
-						<!-- {$i18n.t('Edit Last Message')} -->
+						<!-- {$i18n.t('Attach File From Knowledge')} -->
 						<!-- {$i18n.t('Copy Last Response')} -->
+						<!-- {$i18n.t('Regenerate Response')} -->
 						<!-- {$i18n.t('Copy Last Code Block')} -->
 
 						<!-- {$i18n.t('Only active when "Paste Large Text as File" setting is toggled on.')} -->
