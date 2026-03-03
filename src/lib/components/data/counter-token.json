@@ -1,14 +1,14 @@
 {
   "storage": {
-    "totalLabel": "500 GB",
-    "usedLabel": "125 GB",
-    "percent": 25
+    "totalLabel": "10,000 GB",
+    "usedLabel": "100 MB",
+    "percent": 5
   },
   "tokens": {
     "label": "Tokens",
-    "valueLabel": "500000",
-    "usedLabel": "250000",
-    "percent": 50
+    "valueLabel": "132,597",
+    "usedLabel": "1 M",
+    "percent": 10
   },
   "users": {
     "label": "Users",

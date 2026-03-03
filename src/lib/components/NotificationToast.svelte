@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { WEBUI_BASE_URL } from '$lib/constants';
 	import { settings, playingNotificationSound, isLastActiveTab } from '$lib/stores';
 	import DOMPurify from 'dompurify';
 
@@ -85,7 +84,7 @@
 <div
 	role="status"
 	aria-live="polite"
-	class="group relative flex gap-2.5 text-left min-w-[var(--width)] w-full dark:bg-gray-850 dark:text-white bg-white text-black border border-gray-100 dark:border-gray-800 rounded-3xl px-4 py-3.5 cursor-pointer select-none"
+	class="flex items-start bg-[#F1F8FE] dark:bg-[#020C1D] border border-[#3371D5] dark:border-[#03113B] text-[#2B6CD4] dark:text-[#6795EC] rounded-none px-3.5 py-3 text-xs max-w-none pr-2 w-full shadow-lg cursor-pointer select-none"
 	on:dragstart|preventDefault
 	on:pointerdown={onPointerDown}
 	on:pointermove={onPointerMove}
@@ -98,27 +97,24 @@
 		}
 	}}
 >
-	<!-- Close button (visible on hover) -->
-	<button
-		bind:this={closeButtonElement}
-		class="absolute -top-0.5 -left-0.5 p-0.5 rounded-full opacity-0 group-hover:opacity-100 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-opacity z-10"
-		on:click|stopPropagation={closeHandler}
-		aria-label="Dismiss notification"
-	>
-		<XMark className="size-3" />
-	</button>
-
-	<div class="shrink-0 self-top -translate-y-0.5">
-		<img src="{WEBUI_BASE_URL}/static/favicon.png" alt="favicon" class="size-6 rounded-full" />
-	</div>
-
-	<div>
+	<div class="flex-1 font-medium">
 		{#if title}
-			<div class=" text-[13px] font-medium mb-0.5 line-clamp-1">{title}</div>
+			<div class="line-clamp-1">{title}</div>
 		{/if}
 
-		<div class=" line-clamp-2 text-xs self-center dark:text-gray-300 font-normal">
+		<div class="line-clamp-2 font-normal text-[#2B6CD4] dark:text-[#6795EC]">
 			{@html DOMPurify.sanitize(marked(content))}
 		</div>
+	</div>
+
+	<div class="shrink-0 pr-1">
+		<button
+			bind:this={closeButtonElement}
+			class="hover:text-blue-900 dark:hover:text-blue-300 transition"
+			on:click|stopPropagation={closeHandler}
+			aria-label="Dismiss notification"
+		>
+			<XMark />
+		</button>
 	</div>
 </div>
