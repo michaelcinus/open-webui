@@ -7,83 +7,21 @@
   const cta = data.cta;
 
   let collapsed = false;
+  const MIN_VISIBLE_PERCENT = 4;
 
   const clampPercent = (value) => Math.max(0, Math.min(100, value ?? 0));
-  const normalizeNumber = (value) => {
-    if (!value) return null;
-    const cleaned = String(value).trim();
-    const match = cleaned.match(/^([0-9.,]+)\s*([a-zA-Z]+)?$/);
-    if (!match) return null;
-
-    let numPart = match[1];
-    const unit = match[2] ?? '';
-    const lastDot = numPart.lastIndexOf('.');
-    const lastComma = numPart.lastIndexOf(',');
-    const hasDot = lastDot !== -1;
-    const hasComma = lastComma !== -1;
-
-    if (hasDot && !hasComma) {
-      const digitsAfter = numPart.length - lastDot - 1;
-      if (digitsAfter === 3 && numPart.match(/\./g)?.length >= 1) {
-        numPart = numPart.replace(/\./g, '');
-      } else {
-        numPart = numPart.replace(/,/g, '');
-      }
-    } else if (hasComma && !hasDot) {
-      const digitsAfter = numPart.length - lastComma - 1;
-      if (digitsAfter === 3 && numPart.match(/,/g)?.length >= 1) {
-        numPart = numPart.replace(/,/g, '');
-      } else {
-        numPart = numPart.replace(/\./g, '').replace(',', '.');
-      }
-    } else if (hasComma && hasDot) {
-      const decimalSep = lastDot > lastComma ? '.' : ',';
-      const parts = numPart.split(decimalSep);
-      const intPart = parts[0].replace(/[.,]/g, '');
-      const fracPart = parts.slice(1).join('').replace(/[.,]/g, '');
-      numPart = fracPart.length ? `${intPart}.${fracPart}` : intPart;
+  const toVisiblePercent = (value) => {
+    const clamped = clampPercent(value);
+    if (clamped > 0 && clamped < MIN_VISIBLE_PERCENT) {
+      return MIN_VISIBLE_PERCENT;
     }
-
-    const amount = Number(numPart);
-    if (Number.isNaN(amount)) return null;
-    return { amount, unit };
+    return clamped;
   };
+  const storagePercent = clampPercent(storage.percent);
+  const storageFillPercent = toVisiblePercent(storagePercent);
 
-  const parseCount = (label) => {
-    const parsed = normalizeNumber(label);
-    if (!parsed) return null;
-    const unit = parsed.unit.toUpperCase();
-    const multipliers = { K: 1e3, M: 1e6, B: 1e9, T: 1e12 };
-    return parsed.amount * (multipliers[unit] ?? 1);
-  };
-
-  const parseDataSize = (label) => {
-    const parsed = normalizeNumber(label);
-    if (!parsed) return null;
-    const unit = parsed.unit.toUpperCase();
-    const multipliers = { B: 1, KB: 1e3, MB: 1e6, GB: 1e9, TB: 1e12 };
-    const normalizedUnit = unit.replace(/IB$/i, 'B');
-    return parsed.amount * (multipliers[normalizedUnit] ?? 1);
-  };
-
-  const computePercent = ({ usedLabel, totalLabel, fallback }) => {
-    const used = parseDataSize(usedLabel) ?? parseCount(usedLabel);
-    const total = parseDataSize(totalLabel) ?? parseCount(totalLabel);
-    if (used === null || total === null || total === 0) return clampPercent(fallback);
-    return clampPercent((used / total) * 100);
-  };
-
-  const storagePercent = computePercent({
-    usedLabel: storage.usedLabel,
-    totalLabel: storage.totalLabel,
-    fallback: storage.percent
-  });
-
-  const tokenPercent = computePercent({
-    usedLabel: tokens.usedLabel,
-    totalLabel: tokens.valueLabel,
-    fallback: tokens.percent
-  });
+  const tokenPercent = clampPercent(tokens.percent);
+  const tokenFillPercent = toVisiblePercent(tokenPercent);
 </script>
 
 <div class="counter-token {collapsed ? 'is-collapsed' : ''}" aria-label="Usage summary">
@@ -108,7 +46,7 @@
       <div class="storage">
         <div class="bar-row">
           <div class="bar">
-            <span class="bar-fill" style={`width: ${storagePercent}%`}></span>
+            <span class="bar-fill" style={`width: ${storageFillPercent}%`}></span>
           </div>
           <span class="bar-value">{storage.usedLabel}</span>
         </div>
@@ -121,7 +59,7 @@
       <div class="token-stack">
         <div class="bar-row">
           <div class="bar tokens">
-            <span class="bar-fill" style={`width: ${tokenPercent}%`}></span>
+            <span class="bar-fill" style={`width: ${tokenFillPercent}%`}></span>
           </div>
           <span class="bar-value">{tokens.usedLabel}</span>
         </div>
@@ -154,7 +92,7 @@
 
     <div class="collapsed-bar-row">
       <div class="bar">
-        <span class="bar-fill" style={`width: ${storagePercent}%`}></span>
+        <span class="bar-fill" style={`width: ${storageFillPercent}%`}></span>
       </div>
       <div class="collapsed-value">{storage.usedLabel}</div>
     </div>
