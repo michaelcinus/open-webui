@@ -381,8 +381,8 @@
 		selectedChatId = null;
 	};
 
-		const MIN_WIDTH = 220;
-		const MAX_WIDTH = 254;
+		const MIN_WIDTH = 252;
+		const MAX_WIDTH = 352;
 
 	let isResizing = false;
 

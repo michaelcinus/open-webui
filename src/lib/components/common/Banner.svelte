@@ -24,12 +24,22 @@
 
 	let mounted = false;
 
-	const classNames: Record<string, string> = {
+	const badgeClassNames: Record<string, string> = {
 		info: 'bg-blue-500/20 text-blue-700 dark:text-blue-200 ',
 		success: 'bg-green-500/20 text-green-700 dark:text-green-200',
 		warning: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-200',
 		error: 'bg-red-500/20 text-red-700 dark:text-red-200'
 	};
+
+	const containerClassNames: Record<string, string> = {
+		info: 'border-blue-200 bg-blue-500/10 dark:border-blue-500/30 dark:bg-blue-500/15',
+		success: 'border-green-200 bg-green-500/10 dark:border-green-500/30 dark:bg-green-500/15',
+		warning: 'border-yellow-200 bg-yellow-500/10 dark:border-yellow-500/30 dark:bg-yellow-500/15',
+		error: 'border-red-200 bg-red-500/10 dark:border-red-500/30 dark:bg-red-500/15'
+	};
+
+	let bannerType = 'info';
+	$: bannerType = (banner?.type ?? 'info').toLowerCase();
 
 	const dismiss = (id) => {
 		dismissed = true;
@@ -38,30 +48,30 @@
 
 	onMount(() => {
 		mounted = true;
-
-		console.log('Banner mounted:', banner);
 	});
 </script>
 
 {#if !dismissed}
 	{#if mounted}
 		<div
-			class="{className} top-0 left-0 right-0 py-1 flex justify-center items-center relative border border-transparent text-gray-800 dark:text-gary-100 bg-transparent backdrop-blur-xl z-30"
+			class="{className} top-0 left-0 right-0 py-1 flex justify-center items-center relative border text-gray-800 dark:text-gray-100 backdrop-blur-xl z-30 {containerClassNames[
+				bannerType
+			] ?? containerClassNames['info']}"
 			transition:fade={{ delay: 100, duration: 300 }}
 		>
 			<div class=" flex flex-col md:flex-row md:items-center flex-1 text-sm w-fit gap-1.5">
 				<div class="flex justify-between self-start">
 					<div
-						class=" text-xs font-semibold {classNames[banner.type] ??
-							classNames['info']}  w-fit px-2 rounded-sm uppercase line-clamp-1 mr-0.5"
+						class=" text-xs font-semibold {badgeClassNames[bannerType] ??
+							badgeClassNames['info']}  w-fit px-2 rounded-sm uppercase line-clamp-1 mr-0.5"
 					>
-						{#if banner.type.toLowerCase() === 'info'}
+						{#if bannerType === 'info'}
 							{$i18n.t('Info')}
-						{:else if banner.type.toLowerCase() === 'warning'}
+						{:else if bannerType === 'warning'}
 							{$i18n.t('Warning')}
-						{:else if banner.type.toLowerCase() === 'error'}
+						{:else if bannerType === 'error'}
 							{$i18n.t('Error')}
-						{:else if banner.type.toLowerCase() === 'success'}
+						{:else if bannerType === 'success'}
 							{$i18n.t('Success')}
 						{:else}
 							{banner.type}
