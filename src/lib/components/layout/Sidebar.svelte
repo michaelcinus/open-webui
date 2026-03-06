@@ -382,7 +382,7 @@
 	};
 
 		const MIN_WIDTH = 254;
-		const MAX_WIDTH = 350;
+		const MAX_WIDTH = 254;
 
 	let isResizing = false;
 
