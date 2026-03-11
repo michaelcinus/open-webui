@@ -210,7 +210,7 @@
 						placeholder={$i18n.t('Select a theme')}
 						on:change={() => themeChangeHandler(selectedTheme)}
 					>
-						<option value="system">⚙️ {$i18n.t('System')}</option>
+						<option value="system">⚙️ Auto</option>
 						<option value="dark">🌑 {$i18n.t('Dark')}</option>
 						<option value="light">☀️ {$i18n.t('Light')}</option>
 					</select>
