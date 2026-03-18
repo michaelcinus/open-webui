@@ -79,7 +79,7 @@ from open_webui.utils.redis import get_redis_client
 from open_webui.utils.rate_limit import RateLimiter
 
 
-from typing import Optional, List
+from typing import Optional, List, Any
 
 from ssl import CERT_NONE, CERT_REQUIRED, PROTOCOL_TLS
 
@@ -322,6 +322,18 @@ class UpdateZitadelPasswordForm(BaseModel):
     new_password: str
 
 
+class ZitadelUserMetadataResponse(BaseModel):
+    provider: str
+    issuer: Optional[str] = None
+    userinfo_endpoint: str
+    session_expires_at: Optional[int] = None
+    metadata: dict[str, Any]
+
+
+class ZitadelInvitationsMetadataResponse(BaseModel):
+    invitations: Any
+
+
 def _extract_remote_error_detail(payload: str) -> str:
     if not payload:
         return "No error details returned by provider."
@@ -344,6 +356,117 @@ def _extract_remote_error_detail(payload: str) -> str:
         pass
 
     return payload[:500]
+
+
+async def _get_oidc_provider_metadata(request: Request, provider: str) -> dict:
+    metadata_url = request.app.state.oauth_manager.get_server_metadata_url(provider)
+    if not metadata_url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="OIDC metadata URL is not available.",
+        )
+
+    try:
+        async with ClientSession(trust_env=True) as session_http:
+            async with session_http.get(
+                metadata_url, ssl=AIOHTTP_CLIENT_SESSION_SSL
+            ) as metadata_response:
+                if metadata_response.status != 200:
+                    raise HTTPException(
+                        status_code=status.HTTP_502_BAD_GATEWAY,
+                        detail="Failed to fetch OIDC provider metadata.",
+                    )
+                return await metadata_response.json()
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"Failed to fetch OIDC provider metadata: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to fetch OIDC provider metadata.",
+        )
+
+
+async def _get_zitadel_userinfo(
+    request: Request, session_user: UserModel, db: Session
+) -> dict:
+    provider = "oidc"
+
+    if provider not in OAUTH_PROVIDERS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="OIDC provider is not configured.",
+        )
+
+    oauth_session = OAuthSessions.get_session_by_provider_and_user_id(
+        provider, session_user.id, db=db
+    )
+    if not oauth_session:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No active OIDC session found for the current user.",
+        )
+
+    oauth_token = await request.app.state.oauth_manager.get_oauth_token(
+        session_user.id, oauth_session.id
+    )
+    access_token = (oauth_token or {}).get("access_token")
+    if not access_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="OIDC access token unavailable. Please sign in again with OIDC.",
+        )
+
+    provider_metadata = await _get_oidc_provider_metadata(request, provider)
+    issuer = provider_metadata.get("issuer")
+    userinfo_endpoint = provider_metadata.get("userinfo_endpoint")
+
+    if not userinfo_endpoint:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="OIDC metadata does not contain a userinfo endpoint.",
+        )
+
+    try:
+        async with ClientSession(trust_env=True) as session_http:
+            async with session_http.get(
+                userinfo_endpoint,
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                },
+                ssl=AIOHTTP_CLIENT_SESSION_SSL,
+            ) as userinfo_response:
+                if userinfo_response.status == 200:
+                    user_metadata = await userinfo_response.json()
+                    return {
+                        "provider": provider,
+                        "issuer": issuer,
+                        "userinfo_endpoint": userinfo_endpoint,
+                        "session_expires_at": oauth_session.expires_at,
+                        "metadata": user_metadata,
+                    }
+
+                error_payload = await userinfo_response.text()
+                detail = _extract_remote_error_detail(error_payload)
+
+                if userinfo_response.status in (400, 401, 403):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Zitadel user metadata request failed: {detail}",
+                    )
+
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Unexpected Zitadel response ({userinfo_response.status}): {detail}",
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"Zitadel user metadata request failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to fetch user metadata from Zitadel.",
+        )
 
 
 @router.post("/update/password/zitadel", response_model=bool)
@@ -380,34 +503,8 @@ async def update_zitadel_password(
             detail="OIDC access token unavailable. Please sign in again with OIDC.",
         )
 
-    metadata_url = request.app.state.oauth_manager.get_server_metadata_url(provider)
-    if not metadata_url:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="OIDC metadata URL is not available.",
-        )
-
-    issuer = None
-    try:
-        async with ClientSession(trust_env=True) as session_http:
-            async with session_http.get(
-                metadata_url, ssl=AIOHTTP_CLIENT_SESSION_SSL
-            ) as metadata_response:
-                if metadata_response.status != 200:
-                    raise HTTPException(
-                        status_code=status.HTTP_502_BAD_GATEWAY,
-                        detail="Failed to fetch OIDC provider metadata.",
-                    )
-                metadata = await metadata_response.json()
-                issuer = metadata.get("issuer")
-    except HTTPException:
-        raise
-    except Exception as e:
-        log.error(f"Failed to resolve Zitadel issuer from OIDC metadata: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Failed to resolve Zitadel issuer from OIDC metadata.",
-        )
+    metadata = await _get_oidc_provider_metadata(request, provider)
+    issuer = metadata.get("issuer")
 
     if not issuer:
         raise HTTPException(
@@ -455,6 +552,35 @@ async def update_zitadel_password(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="Failed to update password on Zitadel.",
         )
+
+
+@router.get("/metadata/zitadel", response_model=ZitadelUserMetadataResponse)
+async def get_zitadel_user_metadata(
+    request: Request,
+    session_user=Depends(get_current_user),
+    db: Session = Depends(get_session),
+):
+    return await _get_zitadel_userinfo(request, session_user, db)
+
+
+@router.get(
+    "/metadata/zitadel/invitations", response_model=ZitadelInvitationsMetadataResponse
+)
+async def get_zitadel_invitations_metadata(
+    request: Request,
+    session_user=Depends(get_current_user),
+    db: Session = Depends(get_session),
+):
+    metadata_response = await _get_zitadel_userinfo(request, session_user, db)
+    metadata = metadata_response.get("metadata", {})
+
+    if "invitations" not in metadata:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Zitadel metadata key 'invitations' not found.",
+        )
+
+    return {"invitations": metadata.get("invitations")}
 
 
 ############################
