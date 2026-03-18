@@ -1,4 +1,5 @@
 import asyncio
+import json
 import re
 import uuid
 import time
@@ -309,6 +310,151 @@ async def update_password(
             raise HTTPException(400, detail=ERROR_MESSAGES.INCORRECT_PASSWORD)
     else:
         raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
+
+
+############################
+# Update Zitadel Password (OIDC)
+############################
+
+
+class UpdateZitadelPasswordForm(BaseModel):
+    old_password: str
+    new_password: str
+
+
+def _extract_remote_error_detail(payload: str) -> str:
+    if not payload:
+        return "No error details returned by provider."
+
+    try:
+        data = json.loads(payload)
+        if isinstance(data, dict):
+            for key in ("message", "error_description", "error", "detail"):
+                value = data.get(key)
+                if isinstance(value, str) and value.strip():
+                    return value.strip()
+            details = data.get("details")
+            if isinstance(details, list) and details:
+                first = details[0]
+                if isinstance(first, dict):
+                    detail_message = first.get("message")
+                    if isinstance(detail_message, str) and detail_message.strip():
+                        return detail_message.strip()
+    except Exception:
+        pass
+
+    return payload[:500]
+
+
+@router.post("/update/password/zitadel", response_model=bool)
+async def update_zitadel_password(
+    request: Request,
+    form_data: UpdateZitadelPasswordForm,
+    session_user=Depends(get_current_user),
+    db: Session = Depends(get_session),
+):
+    provider = "oidc"
+
+    if provider not in OAUTH_PROVIDERS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="OIDC provider is not configured.",
+        )
+
+    oauth_session = OAuthSessions.get_session_by_provider_and_user_id(
+        provider, session_user.id, db=db
+    )
+    if not oauth_session:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No active OIDC session found for the current user.",
+        )
+
+    oauth_token = await request.app.state.oauth_manager.get_oauth_token(
+        session_user.id, oauth_session.id
+    )
+    access_token = (oauth_token or {}).get("access_token")
+    if not access_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="OIDC access token unavailable. Please sign in again with OIDC.",
+        )
+
+    metadata_url = request.app.state.oauth_manager.get_server_metadata_url(provider)
+    if not metadata_url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="OIDC metadata URL is not available.",
+        )
+
+    issuer = None
+    try:
+        async with ClientSession(trust_env=True) as session_http:
+            async with session_http.get(
+                metadata_url, ssl=AIOHTTP_CLIENT_SESSION_SSL
+            ) as metadata_response:
+                if metadata_response.status != 200:
+                    raise HTTPException(
+                        status_code=status.HTTP_502_BAD_GATEWAY,
+                        detail="Failed to fetch OIDC provider metadata.",
+                    )
+                metadata = await metadata_response.json()
+                issuer = metadata.get("issuer")
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"Failed to resolve Zitadel issuer from OIDC metadata: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to resolve Zitadel issuer from OIDC metadata.",
+        )
+
+    if not issuer:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="OIDC metadata does not contain an issuer.",
+        )
+
+    change_password_url = f"{issuer.rstrip('/')}/auth/v1/users/me/password"
+
+    try:
+        async with ClientSession(trust_env=True) as session_http:
+            async with session_http.put(
+                change_password_url,
+                json={
+                    "oldPassword": form_data.old_password,
+                    "newPassword": form_data.new_password,
+                },
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
+                },
+                ssl=AIOHTTP_CLIENT_SESSION_SSL,
+            ) as password_response:
+                if password_response.status == 200:
+                    return True
+
+                error_payload = await password_response.text()
+                detail = _extract_remote_error_detail(error_payload)
+
+                if password_response.status in (400, 401, 403):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Zitadel password update failed: {detail}",
+                    )
+
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Unexpected Zitadel response ({password_response.status}): {detail}",
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.error(f"Zitadel password update failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to update password on Zitadel.",
+        )
 
 
 ############################
